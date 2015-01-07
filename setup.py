@@ -76,7 +76,8 @@ setup(
     # For example:
     # install_requires = ['django-pipeline==1.1.22', 'south>=0.7'],
     # install_requires=['wxpython>=2.9', 'wxpython<3.0'],
-    install_requires=['wxpython'],
+    # install_requires=['wxpython'],
+    install_requires=['wxpython==2.9.2.4'],
 
     # List additional groups of dependencies here (e.g. development dependencies).
     # You can install these using the following syntax, for example:
