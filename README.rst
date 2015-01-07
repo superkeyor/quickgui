@@ -51,7 +51,7 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
     # If cancels, returns None
 
     items = [('ID:', ''),
-        ('ID:', 'siu8505'),
+        ('ID:', 'univ205'),
         ('ID:', 1001),
         ('IDs:', [1001, 1002]),                             ->textbox   (internally converts data types)
                                                             the first element is the label

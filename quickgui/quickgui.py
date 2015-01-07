@@ -384,7 +384,7 @@ if __name__ == "__main__":
     app = wx.App(redirect=False)
     import os
     items = [('ID:', ''),
-        ('ID:', 'uni3012213323123112323123123123131231235'),
+        ('ID:', 'uni30122133231231123235'),
         ('ID:', 1001),
         ('IDs:', [1001, 1002]),
         ('Logical Switch:', 'Checked?', False),
