@@ -3,6 +3,7 @@
 csd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $csd
 
+rm -r dist
 rm -r *.egg-info
 
 # python setup.py register
@@ -12,8 +13,7 @@ python setup.py sdist upload
 
 rm -r *.egg-info
 
-# if install_requires=['pandas==0.12.0','openpyxl==1.5.8'], --upgrade will not upgrade dependencies
-# pip install quickgui --upgrade
+# pip install xx --upgrade
 
 # do not use this, seems not working??
 # Although not required, it’s common to locally install your project in “develop” or “editable” mode 
