@@ -1,26 +1,26 @@
-quickgui
-=========
-https://pypi.python.org/pypi/quickgui
-pip install quickgui
-
-jerryzhujian9 at gmail [\/dot/\] com
+Rapidly create GUI without any knowledge of wxpython
+=============================================
+jerryzhujian9_at_gmail.com
 Tested under python 2.7
 To see your python version
 in terminal: python -V
 or in python: import sys; print (sys.version)
-requires wxpython 2.9 (tested 2.9.2.4)
-download it from http://sourceforge.net/projects/wxpython/files/wxPython/2.9.2.4/
 
-=========
-Common dialogs (function wrappers for wxPython dialogs)
-only requires wx (>=2.9?)
-inspired by and modified from gui2py
-"Mariano Reingart (reingart@gmail.com)"
-"Copyright (C) 2013- Mariano Reingart"
+inspired by gui2py, easygui
+=============================================
+Install:
+Requires wxPython 2.9.2.4 (Other 2.9 or even 3.0 versions might also work but not tested)
+You have to install it first manually from
+http://sourceforge.net/projects/wxpython/files/wxPython/2.9.2.4/
+Then
+https://pypi.python.org/pypi/quickgui
+pip install quickgui
 
-usage:
+
+Usage:
 import quickgui as q
 
+alert, confirm, getfile, setfile, getdir, inputs
 Alert(message, title="", icon="exclamation")
     # Shows a simple pop-up modal dialog.
     # icon = "exclamation", "error", "question", "info"
@@ -51,7 +51,7 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
     # If cancels, returns None
 
     items = [('ID:', ''),
-        ('ID:', 'univ205'),
+        ('ID:', 'siu8505'),
         ('ID:', 1001),
         ('IDs:', [1001, 1002]),                             ->textbox   (internally converts data types)
                                                             the first element is the label
@@ -60,7 +60,8 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
         ('Logical Switch:', 'Checked?', False),             ->checkBox  (True/False)
         ('Gender:', ['Female', 'Male'], 0),                 ->radiobox  (0,1; -1 does not work)
         ('Race:', ['Black', 'White', 'Other'], -1),         ->combobox  (-1 selects none)
-        ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0), ->listbox (multiple)
+        ('Majors:
+(Can select more than one)',('Psychology','Math','Biology'), 0), ->listbox (multiple)
                                                             the first is the label
                                                             the second is the options:
                                                                 a string makes it a checkbox
@@ -72,8 +73,8 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
         (''),                                               ->blank line
                                                             just an empty string
 
-        ({'Selecte Input Directory...': "GetDir()"},''),
-        ({'Selecte Output Directory...': "GetDir()"},''),
+        ({'Selecte Input Directory...': "GetDir()"},''),    
+        ({'Selecte Output Directory...': "GetDir()"},''),   
         ({'Save as...': "SetFile()"},''),                   ->button
         ({'Selecte Files...': "GetFile(multiple=True)"},[]),->listbox (disabled)
         ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
@@ -84,4 +85,3 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
                                                                 [] means the button fucntion returns a list
 
     values = Inputs(items=items)    # returns a list of inputs in the order displayed on the GUI (the insertion of blank line, i.e. ('') in the above example, does not interfere the order of returned values)
-

@@ -3,16 +3,26 @@
 
 __author__ = "jerryzhujian9@gmail.com"
 
-__doc__ = """Common dialogs (function wrappers for wxPython dialogs)
-only requires wx (>=2.9?)
-requires wxpython 2.9 (tested 2.9.2.4)
-download it from http://sourceforge.net/projects/wxpython/files/wxPython/2.9.2.4/
+__doc__ = """Rapidly create GUI without any knowledge of wxpython
+=============================================
+jerryzhujian9_at_gmail.com
+Tested under python 2.7
+To see your python version
+in terminal: python -V
+or in python: import sys; print (sys.version)
 
-inspired by and modified from gui2py
-"Mariano Reingart (reingart@gmail.com)"
-"Copyright (C) 2013- Mariano Reingart"
+inspired by gui2py, easygui
+=============================================
+Install:
+Requires wxPython 2.9.2.4 (Other 2.9 or even 3.0 versions might also work but not tested)
+You have to install it first manually from
+http://sourceforge.net/projects/wxpython/files/wxPython/2.9.2.4/
+Then
+https://pypi.python.org/pypi/quickgui
+pip install quickgui
 
-usage:
+
+Usage:
 import quickgui as q
 
 alert, confirm, getfile, setfile, getdir, inputs

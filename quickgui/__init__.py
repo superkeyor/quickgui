@@ -16,5 +16,5 @@ else:
 
 
 from quickgui import *
-__doc__ = quickgui.__doc__
-from packageversion import __version__
+from quickgui import __doc__
+from version import __version__
