@@ -9,13 +9,15 @@ or in python: import sys; print (sys.version)
 inspired by gui2py, easygui
 =============================================
 Install:
-Requires wxPython 2.9.2.4 (Other 2.9 or even 3.0 versions might also work but not tested)
+Requires wxPython 2.9.2.4 (tested under canopy)
 You have to install it first manually from
 http://sourceforge.net/projects/wxpython/files/wxPython/2.9.2.4/
 Then
 https://pypi.python.org/pypi/quickgui
 pip install quickgui
 
+For anacoda python (wxPython 3.0 tested)
+but remember to run: pythonw myscript.py instead of python myscript.py
 
 Usage:
 import quickgui as q
