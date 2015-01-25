@@ -14,7 +14,7 @@ packages = find_packages()
 # install_requires = ['django-pipeline==1.1.22', 'south>=0.7']
 # install_requires=['peppercorn']
 # install_requires=['wxpython==2.9.2.4']
-install_requires=['']
+install_requires=['wxpython']
 ######################################################################################
 # Get the long description from the relevant file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
