@@ -582,10 +582,6 @@ class Log(wx.Frame):
 
             def write(self, message):
                 self.terminal.write(message)
-                 # hack ipython
-                import re
-                if message.startswith('[0;34mln'):
-                    message = re.sub('^\[0.*\[0m','',message)
                 self.log.write(message)
                 self.log.flush()
 
