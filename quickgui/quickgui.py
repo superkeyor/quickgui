@@ -26,6 +26,31 @@ but remember to run: pythonw myscript.py instead of python myscript.py
 Usage:
 import quickgui as q
 
+Message(msg, seconds=10)
+    Displays a timed modal message box, timeout and cancel returns 0, ok returns 1
+Print()
+    Display a window, later print out will be redirected here
+    Methods:
+        Start(), start()  -->start redirecting
+        Stop(), stop()   -->switch back to stdout
+        Flush(), flush() -->force refresh gui
+    Examples:
+        g for gui
+
+        g = Print()
+        g.start()
+        print 'will be shown on window'
+        g.stop()
+        print 'will be shown in terminal'
+        g.start()
+        print 'on window again'
+        g.flush()
+
+        for x in range(20):
+            print "I am a line of " + str(x)
+            g.flush()
+            # time.sleep(0.01)
+            
 alert, confirm, getfile, setfile, getdir, inputs
 Alert(message, title="", icon="exclamation")
     # Shows a simple pop-up modal dialog.
@@ -95,6 +120,21 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
 
 import wx
 from wx.lib import dialogs
+
+# http://wxpython-users.1045709.n5.nabble.com/Close-Exit-and-Destroy-td2330883.html
+# close(), destroy()
+# You use Close() when you want to programatically tell the frame to go
+# close itself, and is functionally the same as the user telling it to
+# close itself with the "X" button.
+
+# Destroy() tells wx to delete the C++ object instance that corresponds to
+# the frame.  Normally it will destroy itself when it closes in the
+# default EVT_CLOSE event handler, but if you catch the EVT_CLOSE yourself
+# you either need to call Destroy in your handler, or call event.Skip so
+# the default handler will still run.  The EVT_CLOSE handler is where you
+# would normally put the code that checks for open files, asks the user if
+# she wants to save them or cancel, etc.  Based on the user's response you
+# can veto the close if you want. 
 
 def Alert(message, title="", icon="exclamation", scrolled=False, parent=None):
     """
@@ -391,26 +431,199 @@ def Inputs(items=[], instruction='Click the button to read the help.', title='As
     return values
 inputs = Inputs
 
+
+class _TimedMessageDialog(wx.Dialog):
+    def __init__(self, message, title, ttl=10):
+        wx.Dialog.__init__(self, None, -1, title,size=(400, 150))
+        self.CenterOnScreen(wx.BOTH)
+        self.timeToLive = ttl
+
+        stdBtnSizer = self.CreateStdDialogButtonSizer(wx.OK|wx.CANCEL) 
+        stMsg = wx.StaticText(self, -1, message)
+        self.stTTLmsg = wx.StaticText(self, -1, 'Closing this dialog box in %d s...'%self.timeToLive)
+
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        vbox.Add(stMsg, 1, wx.ALIGN_CENTER|wx.TOP, 10)
+        vbox.Add(self.stTTLmsg,1, wx.ALIGN_CENTER|wx.TOP, 10)
+        vbox.Add(stdBtnSizer,1, wx.ALIGN_CENTER|wx.TOP, 10)
+        self.SetSizer(vbox)
+
+        self.timer = wx.Timer(self)
+        self.timer.Start(1000) #Generate a timer event every second
+        self.Bind(wx.EVT_TIMER, self.onTimer, self.timer)
+
+    def onTimer(self, evt):
+        self.timeToLive -= 1
+        self.stTTLmsg.SetLabel('Close itself in %d s...'%self.timeToLive)
+
+        if self.timeToLive <= 0:
+            self.timer.Stop()
+            self.Close()
+
+def Message(msg, seconds=10):
+    """Message(msg, seconds=10)
+    Displays a timed modal message box
+    timeout and cancel returns 0, ok returns 1
+    """
+    dlg = _TimedMessageDialog(msg, 'Message', seconds)               
+    result = dlg.ShowModal()
+    if result == wx.ID_OK:
+        return 1
+    else:
+        return 0
+message = Message
+
+#####################################################################
+# http://www.blog.pythonlibrary.org/2009/01/01/wxpython-redirecting-stdout-stderr/
+# http://stackoverflow.com/questions/22211658/implementing-my-own-event-loop-in-a-wxpython-application
+# http://wiki.wxpython.org/LongRunningTasks
+# http://wiki.wxpython.org/Non-Blocking%20Gui
+#####################################################################
+import sys
+class _Print(object):
+    def __init__(self,aWxTextCtrl):
+        self.out = aWxTextCtrl
+
+    def write(self,string):
+        self.out.WriteText(string)
+class Print(wx.Frame):
+    """
+    Display a window, later print out will be redirected here
+
+    Methods:
+        Start(), start()  -->start redirecting
+        Stop(), stop()   -->switch back to stdout
+        Flush(), flush() -->force refresh gui
+    
+    Examples:
+        g for gui
+
+        g = Print()
+        g.start()
+        print 'will be shown on window'
+        g.stop()
+        print 'will be shown in terminal'
+        g.start()
+        print 'on window again'
+        g.flush()
+
+        for x in range(20):
+            print "I am a line of " + str(x)
+            g.flush()
+            # time.sleep(0.01)
+    """
+    def __init__(self):
+        wx.Frame.__init__(self, None, wx.ID_ANY, "Welcome to this App!")
+    
+        # GUI stuff
+        # Add a panel so it looks the correct on all platforms
+        thePanel = wx.Panel(self, wx.ID_ANY)
+        theTxtCtrl = wx.TextCtrl(thePanel, wx.ID_ANY, size=(300,100),
+                          style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)
+        theTxtCtrl.Enable(False)
+        self.theBtn = wx.Button(thePanel, wx.ID_ANY, 'Close')
+        # Add widgets to a sizer        
+        theSizer = wx.BoxSizer(wx.VERTICAL)
+        theSizer.Add(theTxtCtrl, 1, wx.ALL|wx.EXPAND, 5)
+        theSizer.Add(self.theBtn, 0, wx.ALL|wx.CENTER, 5)
+        thePanel.SetSizer(theSizer)
+        self.Layout()
+        self.Center()
+        self.Show()
+        self.theBtn.SetDefault()
+        self.theBtn.SetFocus()
+        self.Flush()
+
+        # Save the old sys.stdout for later reversion
+        self.stdout_default = sys.stdout
+        self.stdout_redirected = _Print(theTxtCtrl)
+
+        # Event Handlers
+        self.Bind(wx.EVT_BUTTON, self.OnClose, self.theBtn)
+        self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
+        self.flush = self.Flush
+        self.start = self.Start
+        self.stop = self.Stop
+
+
+    # escape key to quit
+    def OnKeyUP(self, evt):
+        keyCode = evt.GetKeyCode()
+        if keyCode == wx.WXK_ESCAPE:
+            self.OnClose(evt)
+
+    def OnClose(self,evt):
+        self.Close()
+
+    def Start(self):
+        """start redirecting"""
+        sys.stdout = self.stdout_redirected
+
+    def Stop(self):
+        """stop redirecting"""
+        sys.stdout = self.stdout_default
+
+    def Flush(self):    
+        """force flushing/updating gui"""
+        # make the size small enough to visually hide the splash
+        # the timer interval cannot be too small, >=50 ms
+        class _ModifiedTimedMessageDialog(wx.Dialog):
+            def __init__(self, message, title, ttl=10):
+                wx.Dialog.__init__(self, None, -1, title,size=(0, 0),style=wx.SYSTEM_MENU)
+                self.CenterOnScreen(wx.BOTH)
+                self.timeToLive = ttl
+                self.timer = wx.Timer(self)
+                self.timer.Start(100) #Generate a timer event every second
+                self.Bind(wx.EVT_TIMER, self.onTimer, self.timer)
+            def onTimer(self, evt):
+                self.timeToLive -= 2
+                if self.timeToLive <= 0:
+                    self.timer.Stop()
+                    self.Close()
+        dlg = _ModifiedTimedMessageDialog('', 'flushing', 0)               
+        dlg.ShowModal()
+
+
+
 if __name__ == "__main__":
     app = wx.App(redirect=False)
-    import os
-    items = [('ID:', ''),
-        ('ID:', 'uni30122133231231123235'),
-        ('ID:', 1001),
-        ('IDs:', [1001, 1002]),
-        ('Logical Switch:', 'Checked?', False),
-        ('Gender:', ['Female', 'Male'], 0),
-        ('Race:', ['Black', 'White', 'Other'], -1),
-        (''),
-        ({'Selecte Input Directory...': "GetDir()"},''),
-        ({'Selecte Output Directory...': "GetDir()"},''),
-        ({'Save as...': "SetFile()"},''),
-        ({'Selecte Files...': "GetFile(multiple=True)"},[]),
-        ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0),
-        ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
+    import os, time
 
-    values = Inputs(items=items, instruction=__doc__)
-    print values
+    g = Print()
 
+    g.start()
+    print 'will be shown on window'
+    g.stop()
+    print 'will be shown in terminal'
+    g.start()
+    print 'on window again'
+
+    g.flush()
+
+    for x in range(20):
+        print "I am a line of " + str(x)
+        g.flush()
+        # time.sleep(0.01)
+    
+    # items = [('ID:', ''),
+    #     ('ID:', 'uni30122133231231123235'),
+    #     ('ID:', 1001),
+    #     ('IDs:', [1001, 1002]),
+    #     ('Logical Switch:', 'Checked?', False),
+    #     ('Gender:', ['Female', 'Male'], 0),
+    #     ('Race:', ['Black', 'White', 'Other'], -1),
+    #     (''),
+    #     ({'Selecte Input Directory...': "GetDir()"},''),
+    #     ({'Selecte Output Directory...': "GetDir()"},''),
+    #     ({'Save as...': "SetFile()"},''),
+    #     ({'Selecte Files...': "GetFile(multiple=True)"},[]),
+    #     ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0),
+    #     ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
+    
+    # values = Inputs(items=items, instruction=__doc__)
+    # print values
+
+    # put at the bottom to keep gui window alive
+    # app.MainLoop()
 
 
