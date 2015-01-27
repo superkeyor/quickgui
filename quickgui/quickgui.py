@@ -479,38 +479,26 @@ message = Message
 # http://wiki.wxpython.org/LongRunningTasks
 # http://wiki.wxpython.org/Non-Blocking%20Gui
 #####################################################################
-import sys
-class _Print(object):
-    def __init__(self,aWxTextCtrl):
-        self.out = aWxTextCtrl
-
-    def write(self,string):
-        self.out.WriteText(string)
-class Print(wx.Frame):
+class Log(wx.Frame):
     """
-    Display a window, later print out will be redirected here
+    Display a window to capture print output
+    if on, both terminal and window (updating gui will greatly increase script execution time)
+    if off, only terminal
 
-    Methods:
-        Start(), start()  -->start redirecting
-        Stop(), stop()   -->switch back to stdout
-        Flush(), flush() -->force refresh gui
-    
+    Methods: on/off
+
     Examples:
-        g for gui
-
-        g = Print()
-        g.start()
+        g = Log()
+        g.on()
         print 'will be shown on window'
-        g.stop()
+        g.off()
         print 'will be shown in terminal'
-        g.start()
+        g.on()
         print 'on window again'
-        g.flush()
 
-        for x in range(20):
+        for x in range(100):
             print "I am a line of " + str(x)
-            g.flush()
-            # time.sleep(0.01)
+            # time.sleep(0.01)   
     """
     def __init__(self):
         wx.Frame.__init__(self, None, wx.ID_ANY, "Welcome to this App!")
@@ -518,13 +506,13 @@ class Print(wx.Frame):
         # GUI stuff
         # Add a panel so it looks the correct on all platforms
         thePanel = wx.Panel(self, wx.ID_ANY)
-        theTxtCtrl = wx.TextCtrl(thePanel, wx.ID_ANY, size=(300,100),
+        self.txtCtrl = wx.TextCtrl(thePanel, wx.ID_ANY, size=(300,100),
                           style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)
-        theTxtCtrl.Enable(False)
+        self.txtCtrl.Enable(False)
         self.theBtn = wx.Button(thePanel, wx.ID_ANY, 'Close')
         # Add widgets to a sizer        
         theSizer = wx.BoxSizer(wx.VERTICAL)
-        theSizer.Add(theTxtCtrl, 1, wx.ALL|wx.EXPAND, 5)
+        theSizer.Add(self.txtCtrl, 1, wx.ALL|wx.EXPAND, 5)
         theSizer.Add(self.theBtn, 0, wx.ALL|wx.CENTER, 5)
         thePanel.SetSizer(theSizer)
         self.Layout()
@@ -532,38 +520,11 @@ class Print(wx.Frame):
         self.Show()
         self.theBtn.SetDefault()
         self.theBtn.SetFocus()
-        self.Flush()
-
-        # Save the old sys.stdout for later reversion
-        self.stdout_default = sys.stdout
-        self.stdout_redirected = _Print(theTxtCtrl)
-
         # Event Handlers
         self.Bind(wx.EVT_BUTTON, self.OnClose, self.theBtn)
         self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
-        self.flush = self.Flush
-        self.start = self.Start
-        self.stop = self.Stop
 
-
-    # escape key to quit
-    def OnKeyUP(self, evt):
-        keyCode = evt.GetKeyCode()
-        if keyCode == wx.WXK_ESCAPE:
-            self.OnClose(evt)
-
-    def OnClose(self,evt):
-        self.Close()
-
-    def Start(self):
-        """start redirecting"""
-        sys.stdout = self.stdout_redirected
-
-    def Stop(self):
-        """stop redirecting"""
-        sys.stdout = self.stdout_default
-
-    def Flush(self):    
+    def flush(self):    
         """force flushing/updating gui"""
         # make the size small enough to visually hide the splash
         # the timer interval cannot be too small, >=50 ms
@@ -583,26 +544,83 @@ class Print(wx.Frame):
         dlg = _ModifiedTimedMessageDialog('', 'flushing', 0)               
         dlg.ShowModal()
 
+    def write(self, string):
+        self.txtCtrl.WriteText(string)
+        self.flush()
+
+    # escape key to quit
+    def OnKeyUP(self, evt):
+        keyCode = evt.GetKeyCode()
+        if keyCode == wx.WXK_ESCAPE:
+            self.OnClose(evt)
+
+    def OnClose(self,evt):
+        self.Close()    
+
+    def on(self):
+        self._SetLog(1,self)
+
+    def off(self):
+        self._SetLog(0,self)
+
+    def _SetLog(self, status, gui):
+        """
+        log(status=True)
+        Prints output to both terminal and a gui log window globally.
+        """
+        import sys, datetime
+
+        class Logger(object):
+            def __init__(self, gui):
+                self.gui = gui
+                sys.stdout = sys.__stdout__
+                self.terminal = sys.stdout
+                self.log = self.gui
+                # self.log.write("++++++++++\n")
+                self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
+                self.log.flush()
+
+            def write(self, message):
+                self.terminal.write(message)
+                self.log.write(message)
+                self.log.flush()
+
+            def off(self):
+                self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
+                # self.log.write("++++++++++\n")
+                self.log.write("\n")
+                self.log.flush()
+                sys.stdout = sys.__stdout__
+
+        if status:
+            # restore first if it has been changed
+            try:
+                sys.stdout.off()
+            except AttributeError:
+                pass
+
+            sys.stdout = Logger(gui)
+        else:
+            try:
+                sys.stdout.off()
+            except AttributeError:
+                pass
 
 
 if __name__ == "__main__":
     app = wx.App(redirect=False)
     import os, time
-
-    g = Print()
-
-    g.start()
+    g = Log()
+    g.on()
     print 'will be shown on window'
-    g.stop()
+    g.off()
     print 'will be shown in terminal'
-    g.start()
+    g.on()
     print 'on window again'
 
-    g.flush()
-
-    for x in range(20):
+    g.off()
+    for x in range(100):
         print "I am a line of " + str(x)
-        g.flush()
         # time.sleep(0.01)
     
     # items = [('ID:', ''),
