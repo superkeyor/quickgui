@@ -21,6 +21,31 @@ but remember to run: pythonw myscript.py instead of python myscript.py
 Usage:
 import quickgui as q
 
+Message(msg, seconds=10)
+    Displays a timed modal message box, timeout and cancel returns 0, ok returns 1
+Print()
+    Display a window, later print out will be redirected here
+    Methods:
+        Start(), start()  -->start redirecting
+        Stop(), stop()   -->switch back to stdout
+        Flush(), flush() -->force refresh gui
+    Examples:
+        g for gui
+
+        g = Print()
+        g.start()
+        print 'will be shown on window'
+        g.stop()
+        print 'will be shown in terminal'
+        g.start()
+        print 'on window again'
+        g.flush()
+
+        for x in range(20):
+            print "I am a line of " + str(x)
+            g.flush()
+            # time.sleep(0.01)
+            
 alert, confirm, getfile, setfile, getdir, inputs
 Alert(message, title="", icon="exclamation")
     # Shows a simple pop-up modal dialog.
