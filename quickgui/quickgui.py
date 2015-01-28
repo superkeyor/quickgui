@@ -115,7 +115,7 @@ values = Inputs(items=[], instruction='Click the button to read the help.', titl
 """
 
 
-import wx
+import wx, sys
 from wx.lib import dialogs
 
 # http://wxpython-users.1045709.n5.nabble.com/Close-Exit-and-Destroy-td2330883.html
@@ -476,6 +476,43 @@ message = Message
 # http://wiki.wxpython.org/LongRunningTasks
 # http://wiki.wxpython.org/Non-Blocking%20Gui
 #####################################################################
+class _Printer(object):
+    def __init__(self,aWxTextCtrl):
+        self.out = aWxTextCtrl
+
+    def write(self,line):
+        self.out.WriteText(line)
+
+    def flush(self):    
+        """force flushing/updating gui"""
+        # make the size small enough to visually hide the splash
+        # the timer interval cannot be too small, >=50 ms
+        class _ModifiedTimedMessageDialog(wx.Dialog):
+            def __init__(self, message, title, ttl=10):
+                wx.Dialog.__init__(self, None, -1, title,size=(0, 0),style=wx.SYSTEM_MENU)
+                self.CenterOnScreen(wx.BOTH)
+                self.timeToLive = ttl
+                self.timer = wx.Timer(self)
+                self.timer.Start(100) #Generate a timer event every second
+                self.Bind(wx.EVT_TIMER, self.onTimer, self.timer)
+            def onTimer(self, evt):
+                self.timeToLive -= 2
+                if self.timeToLive <= 0:
+                    self.timer.Stop()
+                    self.Close()
+        dlg = _ModifiedTimedMessageDialog('', 'flushing', 0)               
+        dlg.ShowModal()
+
+class _XPrinter(object):
+    def __init__(self, printer):
+        self.terminal = sys.__stdout__
+        self.printer = printer
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.printer.write(message)
+        self.printer.flush()
+
 class XPrinter(wx.Frame):
     """
     Display a window to capture print output
@@ -503,13 +540,13 @@ class XPrinter(wx.Frame):
         # GUI stuff
         # Add a panel so it looks the correct on all platforms
         thePanel = wx.Panel(self, wx.ID_ANY)
-        self.txtCtrl = wx.TextCtrl(thePanel, wx.ID_ANY, size=(300,100),
+        txtCtrl = wx.TextCtrl(thePanel, wx.ID_ANY, size=(300,100),
                           style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL)
-        self.txtCtrl.Enable(False)
+        txtCtrl.Enable(False)
         self.theBtn = wx.Button(thePanel, wx.ID_ANY, 'Close')
         # Add widgets to a sizer        
         theSizer = wx.BoxSizer(wx.VERTICAL)
-        theSizer.Add(self.txtCtrl, 1, wx.ALL|wx.EXPAND, 5)
+        theSizer.Add(txtCtrl, 1, wx.ALL|wx.EXPAND, 5)
         theSizer.Add(self.theBtn, 0, wx.ALL|wx.CENTER, 5)
         thePanel.SetSizer(theSizer)
         self.Layout()
@@ -518,33 +555,14 @@ class XPrinter(wx.Frame):
         self.theBtn.SetDefault()
         self.theBtn.SetFocus()
         self.ToggleWindowStyle(wx.STAY_ON_TOP)
+
+        # printer
+        self._printer = _Printer(txtCtrl)
+        self._xprinter = _XPrinter(self._printer)
+
         # Event Handlers
         self.Bind(wx.EVT_BUTTON, self.OnClose, self.theBtn)
         self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
-
-    def flush(self):    
-        """force flushing/updating gui"""
-        # make the size small enough to visually hide the splash
-        # the timer interval cannot be too small, >=50 ms
-        class _ModifiedTimedMessageDialog(wx.Dialog):
-            def __init__(self, message, title, ttl=10):
-                wx.Dialog.__init__(self, None, -1, title,size=(0, 0),style=wx.SYSTEM_MENU)
-                self.CenterOnScreen(wx.BOTH)
-                self.timeToLive = ttl
-                self.timer = wx.Timer(self)
-                self.timer.Start(100) #Generate a timer event every second
-                self.Bind(wx.EVT_TIMER, self.onTimer, self.timer)
-            def onTimer(self, evt):
-                self.timeToLive -= 2
-                if self.timeToLive <= 0:
-                    self.timer.Stop()
-                    self.Close()
-        dlg = _ModifiedTimedMessageDialog('', 'flushing', 0)               
-        dlg.ShowModal()
-
-    def write(self, string):
-        self.txtCtrl.WriteText(string)
-        self.flush()
 
     # escape key to quit
     def OnKeyUP(self, evt):
@@ -556,53 +574,13 @@ class XPrinter(wx.Frame):
         self.Close()    
 
     def on(self):
-        self._SetPrinter(1,self)
+        sys.stdout = sys.__stdout__
+        print "+++++Starting displaying in GUI+++++\n"
+        sys.stdout = self._xprinter
 
     def off(self):
-        self._SetPrinter(0,self)
-
-    def _SetPrinter(self, status, gui):
-        """
-        Prints output to both terminal and a gui log window globally.
-        """
-        import sys, datetime
-
-        class Logger(object):
-            def __init__(self, gui):
-                self.gui = gui
-                sys.stdout = sys.__stdout__
-                self.terminal = sys.stdout
-                self.log = self.gui
-                # self.log.write("++++++++++\n")
-                # self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
-                # self.log.flush()
-
-            def write(self, message):
-                self.terminal.write(message)
-                self.log.write(message)
-                self.log.flush()
-
-            def off(self):
-                # self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
-                # self.log.write("++++++++++\n")
-                # self.log.write("\n")
-                self.log.flush()
-                sys.stdout = sys.__stdout__
-
-        if status:
-            # restore first if it has been changed
-            try:
-                sys.stdout.off()
-            except AttributeError:
-                pass
-
-            sys.stdout = Logger(gui)
-        else:
-            try:
-                sys.stdout.off()
-            except AttributeError:
-                pass
-
+        sys.stdout = sys.__stdout__
+        print "+++++Stopping displaying in GUI+++++\n"
 
 if __name__ == "__main__":
     app = wx.App(redirect=False)
@@ -615,8 +593,10 @@ if __name__ == "__main__":
     xprinter.on()
     print 'on window again'
 
-    xprinter.off()
-    for x in range(100):
+    time.sleep(5)
+
+    # xprinter.off()
+    for x in range(50):
         print "I am a line of " + str(x)
         # time.sleep(0.01)
     
