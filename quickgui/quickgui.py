@@ -514,10 +514,10 @@ class XPrinter(wx.Frame):
         thePanel.SetSizer(theSizer)
         self.Layout()
         self.Center()
-        self.ToggleWindowStyle(wx.STAY_ON_TOP)
         self.Show()
         self.theBtn.SetDefault()
         self.theBtn.SetFocus()
+        self.ToggleWindowStyle(wx.STAY_ON_TOP)
         # Event Handlers
         self.Bind(wx.EVT_BUTTON, self.OnClose, self.theBtn)
         self.Bind(wx.EVT_CHAR_HOOK, self.OnKeyUP)
