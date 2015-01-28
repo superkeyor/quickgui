@@ -26,30 +26,27 @@ but remember to run: pythonw myscript.py instead of python myscript.py
 Usage:
 import quickgui as q
 
-Message(msg, seconds=10)
+Message(msg, seconds=10), message
     Displays a timed modal message box, timeout and cancel returns 0, ok returns 1
-Print()
-    Display a window, later print out will be redirected here
-    Methods:
-        Start(), start()  -->start redirecting
-        Stop(), stop()   -->switch back to stdout
-        Flush(), flush() -->force refresh gui
+XPrinter()
+    Display a window to capture print output
+    if on, both terminal and window (updating gui will greatly increase script execution time)
+    if off, only terminal
+
+    Methods: on/off
+
     Examples:
-        g for gui
-
-        g = Print()
-        g.start()
+        xprinter = XPrinter()
+        xprinter.on()
         print 'will be shown on window'
-        g.stop()
+        xprinter.off()
         print 'will be shown in terminal'
-        g.start()
+        xprinter.on()
         print 'on window again'
-        g.flush()
 
-        for x in range(20):
+        for x in range(100):
             print "I am a line of " + str(x)
-            g.flush()
-            # time.sleep(0.01)
+            # time.sleep(0.01)   
             
 alert, confirm, getfile, setfile, getdir, inputs
 Alert(message, title="", icon="exclamation")
@@ -479,7 +476,7 @@ message = Message
 # http://wiki.wxpython.org/LongRunningTasks
 # http://wiki.wxpython.org/Non-Blocking%20Gui
 #####################################################################
-class Log(wx.Frame):
+class XPrinter(wx.Frame):
     """
     Display a window to capture print output
     if on, both terminal and window (updating gui will greatly increase script execution time)
@@ -488,12 +485,12 @@ class Log(wx.Frame):
     Methods: on/off
 
     Examples:
-        g = Log()
-        g.on()
+        xprinter = XPrinter()
+        xprinter.on()
         print 'will be shown on window'
-        g.off()
+        xprinter.off()
         print 'will be shown in terminal'
-        g.on()
+        xprinter.on()
         print 'on window again'
 
         for x in range(100):
@@ -558,14 +555,13 @@ class Log(wx.Frame):
         self.Close()    
 
     def on(self):
-        self._SetLog(1,self)
+        self._SetPrinter(1,self)
 
     def off(self):
-        self._SetLog(0,self)
+        self._SetPrinter(0,self)
 
-    def _SetLog(self, status, gui):
+    def _SetPrinter(self, status, gui):
         """
-        log(status=True)
         Prints output to both terminal and a gui log window globally.
         """
         import sys, datetime
@@ -577,8 +573,8 @@ class Log(wx.Frame):
                 self.terminal = sys.stdout
                 self.log = self.gui
                 # self.log.write("++++++++++\n")
-                self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
-                self.log.flush()
+                # self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
+                # self.log.flush()
 
             def write(self, message):
                 self.terminal.write(message)
@@ -586,9 +582,9 @@ class Log(wx.Frame):
                 self.log.flush()
 
             def off(self):
-                self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
+                # self.log.write(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + "\n")
                 # self.log.write("++++++++++\n")
-                self.log.write("\n")
+                # self.log.write("\n")
                 self.log.flush()
                 sys.stdout = sys.__stdout__
 
@@ -610,15 +606,15 @@ class Log(wx.Frame):
 if __name__ == "__main__":
     app = wx.App(redirect=False)
     import os, time
-    g = Log()
-    g.on()
+    xprinter = XPrinter()
+    xprinter.on()
     print 'will be shown on window'
-    g.off()
+    xprinter.off()
     print 'will be shown in terminal'
-    g.on()
+    xprinter.on()
     print 'on window again'
 
-    g.off()
+    xprinter.off()
     for x in range(100):
         print "I am a line of " + str(x)
         # time.sleep(0.01)
