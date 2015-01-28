@@ -498,7 +498,7 @@ class XPrinter(wx.Frame):
             # time.sleep(0.01)   
     """
     def __init__(self):
-        wx.Frame.__init__(self, None, wx.ID_ANY, "Welcome to this App!", style = wx.STAY_ON_TOP)
+        wx.Frame.__init__(self, None, wx.ID_ANY, "Welcome to this App!")
     
         # GUI stuff
         # Add a panel so it looks the correct on all platforms
@@ -514,6 +514,7 @@ class XPrinter(wx.Frame):
         thePanel.SetSizer(theSizer)
         self.Layout()
         self.Center()
+        self.ToggleWindowStyle(wx.STAY_ON_TOP)
         self.Show()
         self.theBtn.SetDefault()
         self.theBtn.SetFocus()
