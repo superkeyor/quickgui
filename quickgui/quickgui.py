@@ -513,6 +513,9 @@ class _XPrinter(object):
         self.printer.write(message)
         self.printer.flush()
 
+    def flush(self):
+        self.printer.flush()
+
 class XPrinter(wx.Frame):
     """
     Display a window to capture print output
