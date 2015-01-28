@@ -514,6 +514,7 @@ class _XPrinter(object):
         self.printer.flush()
 
     def flush(self):
+        self.terminal.flush()
         self.printer.flush()
 
 class XPrinter(wx.Frame):
@@ -582,6 +583,7 @@ class XPrinter(wx.Frame):
         sys.stdout = self._xprinter
 
     def off(self):
+        self._xprinter.flush()
         sys.stdout = sys.__stdout__
         print "+++++Stopping displaying in GUI+++++\n"
 
