@@ -68,7 +68,7 @@ SetFile(directory='', filename='', overwrite=False, wildcard='All Files (*.*)|*.
 GetDir(path="", title='Select a directory')
     # Shows a dialog to choose a directory.
 
-values = Inputs(items=[], instruction='Click the button to read the help.', title='Ask for inputs')
+values = Inputs(items=[], width=None, instruction='Click the button to read the help.', title='Ask for inputs')
     # Flexible dialog for user inputs.
     # Returns a value for each row in a list, e.g. [u'1001', u'female', u'', []]
         # textbox accepts a string or str(default) and returns a string or eval(string)
