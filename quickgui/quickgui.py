@@ -275,13 +275,16 @@ class _Inputs(wx.Dialog):
     values = Inputs(items=items)    # returns a list of inputs in the order displayed on the GUI (the insertion of blank line, i.e. ('') in the above example, does not interfere the order of returned values)
     """
 
-    def __init__(self, items=[], instruction='', title=''):
+    def __init__(self, items=[], width=None, instruction='', title=''):
         instruction = str(instruction)
         wx.Dialog.__init__(self, None, -1, title=title, style=wx.DEFAULT_FRAME_STYLE)
 
         szrMain = wx.BoxSizer(wx.VERTICAL)  # default boxsizer
-        szrSub = wx.FlexGridSizer(len(items)+1, 2, 15, 10)   # flexible gridsizer, +1 for help/cancel/ok buttons
-
+        if width:
+            szrSub = wx.FlexGridSizer(len(items)+1+1, 2, 15, 10)   # flexible gridsizer, +1 for help/cancel/ok buttons
+        else:
+            szrSub = wx.FlexGridSizer(len(items)+1, 2, 15, 10)
+            
         # parse items
         self.szrMain = szrMain
         self.widgets = []
@@ -354,6 +357,19 @@ class _Inputs(wx.Dialog):
                 szrSub.Add(label, 0, wx.ALL | wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 0)
                 label = wx.StaticText(self, wx.ID_ANY, '')
                 szrSub.Add(label, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+        
+        if width:
+            # label = wx.StaticText(self, wx.ID_ANY, '', style=wx.ALIGN_RIGHT)
+            # szrSub.Add(label, 0, wx.ALL | wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 0)
+            # textbox = wx.TextCtrl(self, wx.ID_ANY, ' '*width, size=(len(' '*width*10),-1))
+            # color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND)
+            # textbox.SetBackgroundColour(color)
+            # textbox.Enable(False)
+            # szrSub.Add(textbox, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+            label = wx.StaticText(self, wx.ID_ANY, '', style=wx.ALIGN_RIGHT)
+            szrSub.Add(label, 0, wx.ALL | wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 0)
+            label = wx.StaticText(self, wx.ID_ANY, ' '*width)
+            szrSub.Add(label, 0, wx.ALL | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 
         btnHelp = wx.Button(self, wx.ID_HELP, "Help")
         ## msecs; Set the delay after which the tooltip disappears or how long a tooltip remains visible.
@@ -413,9 +429,9 @@ class _Inputs(wx.Dialog):
         return values
 
 
-def Inputs(items=[], instruction='Click the button to read the help.', title='Ask for inputs'):
+def Inputs(items=[], width=None, instruction='Click the button to read the help.', title='Ask for inputs'):
     """Flexible dialog for user inputs."""
-    dlg = _Inputs(items=items, instruction=instruction, title=title)
+    dlg = _Inputs(items=items, width=width, instruction=instruction, title=title)
     
     # communicate between dlg and this function
     # the dlg should also have a cancel button; if only has OK, then click the x close button returns wx.ID_OK
@@ -590,38 +606,38 @@ class XPrinter(wx.Frame):
 if __name__ == "__main__":
     app = wx.App(redirect=False)
     import os, time
-    xprinter = XPrinter()
-    xprinter.on()
-    print 'will be shown on window'
-    xprinter.off()
-    print 'will be shown in terminal'
-    xprinter.on()
-    print 'on window again'
-
-    time.sleep(5)
-
+    # xprinter = XPrinter()
+    # xprinter.on()
+    # print 'will be shown on window'
     # xprinter.off()
-    for x in range(50):
-        print "I am a line of " + str(x)
-        # time.sleep(0.01)
+    # print 'will be shown in terminal'
+    # xprinter.on()
+    # print 'on window again'
+
+    # time.sleep(5)
+
+    # # xprinter.off()
+    # for x in range(50):
+    #     print "I am a line of " + str(x)
+    #     # time.sleep(0.01)
     
-    # items = [('ID:', ''),
-    #     ('ID:', 'uni30122133231231123235'),
-    #     ('ID:', 1001),
-    #     ('IDs:', [1001, 1002]),
-    #     ('Logical Switch:', 'Checked?', False),
-    #     ('Gender:', ['Female', 'Male'], 0),
-    #     ('Race:', ['Black', 'White', 'Other'], -1),
-    #     (''),
-    #     ({'Selecte Input Directory...': "GetDir()"},''),
-    #     ({'Selecte Output Directory...': "GetDir()"},''),
-    #     ({'Save as...': "SetFile()"},''),
-    #     ({'Selecte Files...': "GetFile(multiple=True)"},[]),
-    #     ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0),
-    #     ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
+    items = [('ID:', ''),
+        ('ID:', 'uni30122133231231123235'),
+        ('ID:', 1001),
+        ('IDs:', [1001, 1002]),
+        ('Logical Switch:', 'Checked?', False),
+        ('Gender:', ['Female', 'Male'], 0),
+        ('Race:', ['Black', 'White', 'Other'], -1),
+        (''),
+        ({'Selecte Input Directory...': "GetDir()"},''),
+        ({'Selecte Output Directory...': "GetDir()"},''),
+        ({'Save as...': "SetFile()"},''),
+        ({'Selecte Files...': "GetFile(multiple=True)"},[]),
+        ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0),
+        ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
     
-    # values = Inputs(items=items, instruction=__doc__)
-    # print values
+    values = Inputs(items=items,width=1000,instruction=__doc__)
+    print values
 
     # put at the bottom to keep gui window alive
     # app.MainLoop()
