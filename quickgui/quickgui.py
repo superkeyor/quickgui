@@ -555,7 +555,7 @@ class XPrinter(wx.Frame):
             # time.sleep(0.01)   
     """
     def __init__(self):
-        wx.Frame.__init__(self, None, wx.ID_ANY, "Welcome to this App!")
+        wx.Frame.__init__(self, None, wx.ID_ANY, "Welcome to this App!", size=(700,300))
     
         # GUI stuff
         # Add a panel so it looks the correct on all platforms
@@ -606,38 +606,38 @@ class XPrinter(wx.Frame):
 if __name__ == "__main__":
     app = wx.App(redirect=False)
     import os, time
-    # xprinter = XPrinter()
-    # xprinter.on()
-    # print 'will be shown on window'
+    xprinter = XPrinter()
+    xprinter.on()
+    print 'will be shown on window'
+    xprinter.off()
+    print 'will be shown in terminal'
+    xprinter.on()
+    print 'on window again'*30
+
+    time.sleep(5)
+
     # xprinter.off()
-    # print 'will be shown in terminal'
-    # xprinter.on()
-    # print 'on window again'
-
-    # time.sleep(5)
-
-    # # xprinter.off()
-    # for x in range(50):
-    #     print "I am a line of " + str(x)
-    #     # time.sleep(0.01)
+    for x in range(30):
+        print "I am a line of " + str(x)
+        # time.sleep(0.01)
     
-    items = [('ID:', ''),
-        ('ID:', 'uni30122133231231123235'),
-        ('ID:', 1001),
-        ('IDs:', [1001, 1002]),
-        ('Logical Switch:', 'Checked?', False),
-        ('Gender:', ['Female', 'Male'], 0),
-        ('Race:', ['Black', 'White', 'Other'], -1),
-        (''),
-        ({'Selecte Input Directory...': "GetDir()"},''),
-        ({'Selecte Output Directory...': "GetDir()"},''),
-        ({'Save as...': "SetFile()"},''),
-        ({'Selecte Files...': "GetFile(multiple=True)"},[]),
-        ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0),
-        ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
+    # items = [('ID:', ''),
+    #     ('ID:', 'uni30122133231231123235'),
+    #     ('ID:', 1001),
+    #     ('IDs:', [1001, 1002]),
+    #     ('Logical Switch:', 'Checked?', False),
+    #     ('Gender:', ['Female', 'Male'], 0),
+    #     ('Race:', ['Black', 'White', 'Other'], -1),
+    #     (''),
+    #     ({'Selecte Input Directory...': "GetDir()"},''),
+    #     ({'Selecte Output Directory...': "GetDir()"},''),
+    #     ({'Save as...': "SetFile()"},''),
+    #     ({'Selecte Files...': "GetFile(multiple=True)"},[]),
+    #     ('Majors:\n(Can select more than one)',('Psychology','Math','Biology'), 0),
+    #     ({"Output File Name(*.csv):": "SetFile(directory='%s', filename='output.csv', wildcard='CSV Files (*.csv)|*.csv')" % os.getcwd()}, '')]
     
-    values = Inputs(items=items,width=1000,instruction=__doc__)
-    print values
+    # values = Inputs(items=items,width=1000,instruction=__doc__)
+    # print values
 
     # put at the bottom to keep gui window alive
     # app.MainLoop()
