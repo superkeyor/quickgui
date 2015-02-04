@@ -277,7 +277,7 @@ class _Inputs(wx.Dialog):
 
     def __init__(self, items=[], width=None, instruction='', title=''):
         instruction = str(instruction)
-        wx.Dialog.__init__(self, None, -1, title=title, style=wx.DEFAULT_FRAME_STYLE)
+        wx.Dialog.__init__(self, None, -1, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.STAY_ON_TOP)
 
         szrMain = wx.BoxSizer(wx.VERTICAL)  # default boxsizer
         if width:
