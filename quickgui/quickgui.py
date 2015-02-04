@@ -277,7 +277,7 @@ class _Inputs(wx.Dialog):
 
     def __init__(self, items=[], width=None, instruction='', title=''):
         instruction = str(instruction)
-        wx.Dialog.__init__(self, None, -1, title=title, style=wx.DEFAULT_FRAME_STYLE)
+        wx.Dialog.__init__(self, None, -1, title=title, style=wx.DEFAULT_DIALOG_STYLE)
 
         szrMain = wx.BoxSizer(wx.VERTICAL)  # default boxsizer
         if width:
@@ -436,7 +436,7 @@ def Inputs(items=[], width=None, instruction='Click the button to read the help.
     # communicate between dlg and this function
     # the dlg should also have a cancel button; if only has OK, then click the x close button returns wx.ID_OK
     answer = dlg.ShowModal()
-    dlg.SetWindowStyle(wx.STAY_ON_TOP)
+    dlg.ToggleWindowStyle(wx.STAY_ON_TOP)
     if answer == wx.ID_OK:
         values = dlg.return_values()
     else:
