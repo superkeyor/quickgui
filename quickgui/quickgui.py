@@ -436,7 +436,7 @@ def Inputs(items=[], width=None, instruction='Click the button to read the help.
     # communicate between dlg and this function
     # the dlg should also have a cancel button; if only has OK, then click the x close button returns wx.ID_OK
     answer = dlg.ShowModal()
-    dlg.SetWindowStyle(wx.DEFAULT_DIALOG_STYLE|wx.STAY_ON_TOP)
+    dlg.ToggleWindowStyle(wx.STAY_ON_TOP)
     if answer == wx.ID_OK:
         values = dlg.return_values()
     else:
